@@ -1,3 +1,4 @@
+import { Color } from "ogl";
 import React from "react";
 
 const MovieDetails = ({movie, closeMovieDetails}) => {
@@ -46,17 +47,18 @@ const MovieDetails = ({movie, closeMovieDetails}) => {
                 <h2 className="text-[20px] sm:text-[25px] text-center">{movie.title}</h2>
 
                 <div className="flex items-center gap-2">
-                    <div className="flex font-bold bg-dark-200 rounded-[5px] h-10 w-20 md:w-22 p-2">
-                        <img className="h-5 mr-1" src="star.svg" alt="Star Icon" />
+                    <div className="flex items-center font-bold bg-dark-200 rounded-[5px] h-8 w-18 md:h-10 md:w-22 p-2 text-[12px] md:text-[16px]">
+                        <img className="h-4 md:h-5 mr-1" src="star.svg" alt="Star Icon" />
                         <p className="text-white">
                             {movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A'}
                         </p>
                         <p className="text-gray-100">/10</p>
                     </div>
 
-                    <div className="">
-                        <button className="px-4 py-2 bg-dark-200 rounded-[5px] font-bold text-white cursor-pointer"
-                                onClick={closeMovieDetails}>X</button>
+                    <div className="flex">
+                        <button className="flex items-center justify-center h-8 w-8 md:h-10 md:w-10 bg-dark-200 rounded-[5px] font-bold text-white cursor-pointer" onClick={closeMovieDetails}>
+                            <svg className="text-white" xmlns="http://www.w3.org/2000/svg" width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="CurrentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                        </button>
                     </div>
                 </div>
             </header>
@@ -78,7 +80,7 @@ const MovieDetails = ({movie, closeMovieDetails}) => {
             <div className="mt-8">
 
                 <div className="details">
-                    <h3 className="text1">Generes</h3>
+                    <h3 className="text1">Genres</h3>
                     <div className="flex flex-wrap gap-2">
                         {movie.genres.map((genres) => (
                             <span key={genres.id} className="bg-dark-200 text-light-100 text-[15px] px-3 py-1 rounded-[5px]">{genres.name}</span>

@@ -22,7 +22,7 @@
 
   --breakpoint-xs: 480px;
 
-  --background-image-hero-pattern: url("/main-bg.svg");
+  /*--background-image-hero-pattern: url("/main-bg.svg");*/
 }
 
 @layer base {
@@ -41,7 +41,7 @@
   }
 
   main {
-    @apply min-h-screen relative bg-primary;
+    @apply min-h-screen relative;
   }
 
   header {
@@ -55,11 +55,11 @@
 
 @layer components {
   .pattern {
-    @apply bg-hero-pattern w-full h-screen bg-center bg-cover absolute z-0;
+    @apply w-full h-screen bg-center bg-cover absolute z-0;
   }
 
   .wrapper {
-    @apply px-5 py-12 xs:p-10 max-w-7xl mx-auto flex flex-col relative z-10;
+    @apply px-5 py-12 xs:p-10 max-w-7xl mx-auto flex flex-col relative z-10 items-center;
   }
 
   .trending {
@@ -83,7 +83,7 @@
   }
 
   .search {
-    @apply w-full bg-light-100/5 px-4 py-3 rounded-lg mt-10 max-w-3xl mx-auto;
+    @apply w-full bg-light-100/5 px-4 py-3 rounded-lg max-w-3xl mx-auto;
 
     & div {
       @apply relative flex items-center;
@@ -94,7 +94,7 @@
     }
 
     & input {
-      @apply w-full bg-transparent py-2 sm:pr-10 pl-10 text-base text-gray-200 placeholder-light-200 outline-hidden;
+      @apply w-full bg-transparent py-2 sm:pr-10 pl-10 text-light-100 placeholder-light-100 outline-hidden;
     }
   }
 
@@ -107,7 +107,7 @@
   }
 
   .movie-card {
-    @apply bg-dark-100 p-5 rounded-2xl shadow-inner shadow-light-100/10 cursor-pointer;
+    @apply bg-dark-100 p-5 rounded-2xl shadow-inner shadow-light-100/10 cursor-pointer hover:scale-105 transition-all duration-300;
 
     & img {
       @apply rounded-lg h-auto w-full;
@@ -175,4 +175,33 @@
   &::-webkit-scrollbar {
     display: none;
   }
+}
+
+@keyframes reveal {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* Animação para ESCONDER o conteúdo (de 100% de altura para 0%) */
+@keyframes hide {
+  from {
+    clip-path: inset(0 0 0 0);
+  }
+  to {
+    clip-path: inset(0 0 100% 0);
+  }
+}
+
+/* Classe que aplica a animação de REVELAR */
+.animate-reveal {
+  animation: reveal 0.5s ease-in-out forwards;
+}
+
+/* Classe que aplica a animação de ESCONDER */
+.animate-hide {
+  animation: hide 0.5s ease-in-out forwards;
 }

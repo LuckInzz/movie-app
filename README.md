@@ -3,7 +3,8 @@
 A **trending movie and TV show app** built with **React + Vite**, supporting:
 
 - Fetching and displaying a list of **popular movies** 🎥
-- **Search functionality** to quickly find any movie by title 🔍
+- **Search functionality** to quickly find any movie by title🔍
+- **Multi-Select Genre Filter:** Filter discoveries by one or more genres simultaneously.
 - **Pagination** to navigate through movie pages
 - A responsive, mobile-first design with **Tailwind CSS**
 - Fetching and displaying **detailed information** about a specific movie in a modal
@@ -25,6 +26,12 @@ A **trending movie and TV show app** built with **React + Vite**, supporting:
 - **API Key:** You **must** acquire your own TMDB API key and set it up as an environment variable in a `.env` file to run the application.
 - **Responsiveness:** The app is designed to be fully responsive, adapting its layout from mobile devices to large desktop monitors.
 - **Data Fetching:** The app makes two distinct API calls: one to fetch the list of popular movies and another to fetch detailed information for a specific movie when a card is clicked.
+
+---
+
+## 📝 Future Improvements
+
+- [ ] Add a "Reviews" tab to the movie details modal.
 
 ---
 

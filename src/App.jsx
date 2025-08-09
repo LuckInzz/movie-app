@@ -1,8 +1,11 @@
-import {useState, useEffect, useRef} from "react";
+import {useState, useEffect, useRef, use} from "react";
+import './index.css';
 import Search from "./components/Search.jsx";
+import DropdownBtn from "./components/DropdownBtn.jsx";
 import Loading_Spinner from "./components/Loading_Spinner.jsx";
 import MovieCard from "./components/MovieCard.jsx";
 import MovieDetails from "./components/MovieDetails.jsx";
+import LightRays from "./components/LightRays.jsx";
 import { useDebounce } from 'react-use'
 //import { getTrendingMovies, updateSearchCount } from './appwrite.js'
 
@@ -25,6 +28,8 @@ const App = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [selectedMovie, setSelectedMovie] = useState(null);
+    const [selectedGenres, setSelectedGenres] = useState([]);
+    const [listGenres, setListGenres] = useState([]);
 
     const allMoviesSectionRef = useRef(null);
 
@@ -35,9 +40,18 @@ const App = () => {
         setErrorMessage('');
 
         try{
-            const endpoint = query
-                ? `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}&page=${page}`
-                : `${API_BASE_URL}/discover/movie?sort_by=popularity.desc&page=${page}`;
+            let endpoint = '';
+
+            if (query) {
+                // 1. Prioridade para busca por texto
+                endpoint = `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}&page=${page}`;
+            } else if (selectedGenres) {
+                // 2. Se não houver busca, use o gênero selecionado
+                endpoint = `${API_BASE_URL}/discover/movie?with_genres=${selectedGenres.join(',')}&page=${page}&sort_by=popularity.desc`;
+            } else {
+                // 3. Se não houver nem busca nem gênero, mostre os mais populares
+                endpoint = `${API_BASE_URL}/discover/movie?sort_by=popularity.desc&page=${page}`;
+            }
 
             const response = await fetch(endpoint, API_OPTIONS);
 
@@ -70,7 +84,7 @@ const App = () => {
 
     useEffect(() => {
         fetchMovies(debouncedSearchTerm, currentPage);
-    }, [debouncedSearchTerm, currentPage]);
+    }, [debouncedSearchTerm, currentPage, selectedGenres]);
 
     const scrollToMoviesSection = () => {
         if (allMoviesSectionRef.current) {
@@ -114,29 +128,83 @@ const App = () => {
         document.body.style.overflow="auto";
     }
 
+    const handleGenreClick = (genreID) => { //GenreID
+        setSelectedGenres(prevGenres => {
+            if(prevGenres.includes(genreID)){
+                return prevGenres.filter(id => id !== genreID);
+            }
+            else {
+                return [...prevGenres, genreID] 
+            }
+        });
+        setCurrentPage(1)
+    }
+
+    const handleClearGenres = () => {
+        setSelectedGenres([])
+    }
+
+    useEffect(() => {  //Make only 1 fetch to DB to get all Genres
+        const fetchGenres = async () => {
+            const endpoint = `${API_BASE_URL}/genre/movie/list`;
+            const response = await fetch(endpoint, API_OPTIONS);
+            if (!response.ok) {
+                console.error('Failed to get genres.');
+                setListGenres([]);
+                return;
+            }
+            const data = await response.json();
+            setListGenres(data.genres || []);
+        }
+        fetchGenres();
+    }, []);
+
     return (
         <main>
-            <div className="pattern" />
+
+            <div style={{ width: '100%', height: '600px', position: 'absolute', zIndex: -1}}>
+                <LightRays
+                    raysOrigin="top-center"
+                    raysColor="cecefb"
+                    raysSpeed={1}
+                    lightSpread={1}
+                    rayLength={0.6}
+                    followMouse={true}
+                    mouseInfluence={0.1}
+                    noiseAmount={0.1}
+                    distortion={0.05}
+                    pulsating={true}
+                    className="custom-rays"
+                />
+            </div>
 
             <div className="wrapper">
                 <header>
-                    <div className="logo mb-5">
-                        <img src="./logo/logo-no-bg.png" className="h-40 w-auto object-contain brightness-175" />
-                    </div>
+                    <img src="./logo/logo-no-bg.png" className="h-30 w-auto object-contain brightness-175" />
                     <h1>TrendingFlix</h1>
 
                     <img src="./hero-img.png" alt="main-posters" />
                     <h1>Find All Bests Trending <span className="text-gradient">Movies</span> Of The Moment! </h1>
 
-                    <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+                    <div className="flex items-center justify-center flex-col xs:flex-row mt-10 mb-10 gap-6">
+                        <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+                        <div className="flex items-center ml-10">
+                            <DropdownBtn onGenreClick={handleGenreClick} listGenres={listGenres} selectedGenres={selectedGenres}/>
+                            <button 
+                                onClick={handleClearGenres}
+                                className={`flex items-center justify-center h-10 w-10 p-2 rounded-lg text-light-100 
+                                        bg-red-500/20 backdrop-blur-sm transition-all duration-300 ease-in-out
+                                        ${selectedGenres.length > 0
+                                        ? 'opacity-100 translate-x-[12px] z-10 animate-bounce cursor-pointer hover:bg-red-800' // Estado VISÍVEL
+                                        : 'opacity-0 translate-x-0 z-0'         // Estado ESCONDIDO
+                                }`}><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                            </button>
+                        </div>
+                    </div>
                 </header>
 
-                <section className="trending">
-
-                </section>
-
                 <section ref={allMoviesSectionRef} className="all-movies">
-                    <h2 className="mt-[20px]">Popular</h2>
+                    <h2 className="mt-[20px]">Trending</h2>
 
                     {isLoading ? (
                         <Loading_Spinner />
@@ -153,15 +221,19 @@ const App = () => {
                     )}
                 </section>
 
-                <section className="flex justify-center items-center mt-12 gap-15">
-                    <button onClick={handlePreviousPage} disabled={currentPage === 1} className="cursor-pointer brightness-150 disabled:cursor-not-allowed disabled:opacity-50">
+                <div className="flex justify-center items-center mt-12 gap-15">
+                    <button onClick={handlePreviousPage} disabled={currentPage === 1} 
+                    className="cursor-pointer disabled:cursor-not-allowed disabled:opacity-50">
                         <img src="button-left.png" />
                     </button>
+
                     <p className="text-white text-tl font-semibold">{currentPage} / {totalPages}</p>
-                    <button onClick={handleNextPage} disabled={currentPage === totalPages} className="cursor-pointer brightness-150 disabled:cursor-not-allowed disabled:opacity-50">
+
+                    <button onClick={handleNextPage} disabled={currentPage === totalPages} 
+                    className="cursor-pointer disabled:cursor-not-allowed disabled:opacity-50">
                         <img src="button-left.png" className="rotate-180"/>
                     </button>
-                </section>
+                </div>
             </div>
 
             {selectedMovie && (
@@ -175,7 +247,7 @@ const App = () => {
                     {/* Container do model: Centralizado e por cima de tudo*/}
                     <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50
                                     max-w-full max-h-[90%] overflow-y-auto shadow-[0_0_30px_0]
-                                    shadow-purple-200 rounded-[8px] w-90 sm:w-150 md:w-180 lg:w-250">
+                                    shadow-purple-200 rounded-[8px] w-90 sm:w-150 md:w-180 lg:w-250 hide-scrollbar">
                         <MovieDetails key={selectedMovie.id}
                                       movie={selectedMovie}
                                       closeMovieDetails={() => handleCloseMovieDetails()}/>
